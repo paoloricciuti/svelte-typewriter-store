@@ -1,17 +1,29 @@
 import { writable } from "svelte/store";
 
+type ListenersKeys = "letter:add" | "letter:remove" | "word";
+
+type Listeners = Map<ListenersKeys, Set<(updated: string) => void>>;
+
 export function typewriter(words: string[] = [], ms: number = 100, interWordsMs: number = 1500) {
     const { subscribe, set } = writable("");
     let currentWord = words[0];
     let currentIndex = 0;
     let currentWordIndex = 0;
     let direction = 1;
+    let listeners: Listeners = new Map([["letter:add", new Set()], ["letter:remove", new Set()], ["word", new Set()]]);
     const timeOutFunction = () => {
         set(currentWord.slice(0, currentIndex));
         let waiting = ms;
         if (currentIndex === currentWord.length) {
+            listeners.get("word")!.forEach(cb => cb(currentWord));
             direction = -1;
             waiting = interWordsMs;
+        } else {
+            if (direction === 1) {
+                listeners.get("letter:add")!.forEach(cb => cb(currentWord[currentIndex]));
+            } else {
+                listeners.get("letter:remove")!.forEach(cb => cb(currentWord[currentIndex]));
+            }
         }
         currentIndex += direction;
         if (currentIndex === -1) {
@@ -43,5 +55,11 @@ export function typewriter(words: string[] = [], ms: number = 100, interWordsMs:
         filter(predicate: (value: string, index: number, array: string[]) => boolean) {
             words = words.filter(predicate);
         },
+        on(listener: ListenersKeys, cb: (updated: string) => void) {
+            listeners.get(listener)?.add(cb);
+        },
+        off(listener: ListenersKeys, cb: (updated: string) => void) {
+            listeners.get(listener)?.delete(cb);
+        }
     };
 }

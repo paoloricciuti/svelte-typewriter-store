@@ -48,6 +48,17 @@ Simply import the typewriter function from the package and create a readable sto
     //how much you want to wait between words
 	const wordWait = 1500;
 	let wordStore = typewriter(words, speed, wordWait);
+    //you can add a listener on the letter:add, letter:remove or on 
+    //the completed word you can later remove them with store.off
+    wordStore.on("letter:add", (addedLetter)=>{
+        console.log(`Just added the letter ${addedLetter}`);
+    });
+    wordStore.on("letter:remove", (removedLetter)=>{
+        console.log(`Just removed the letter ${removedLetter}`);
+    });
+    wordStore.on("word", (word)=>{
+        console.log(`Just finished typing the word ${word}`);
+    });
 </script>
 
 <button on:click={async ()=>{

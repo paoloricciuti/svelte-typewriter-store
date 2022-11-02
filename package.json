@@ -1,7 +1,14 @@
 {
 	"name": "svelte-typewriter-store",
-	"version": "0.0.2",
-	"scripts": {
+	"version": "0.0.5",
+    "repository": "git+https://github.com/paoloricciuti/svelte-typewriter-store.git",
+    "author": "Paolo Ricciuti",
+    "keywords": [
+        "svelte",
+        "store",
+        "typewriter effect"
+    ],
+    "scripts": {
 		"dev": "vite dev",
 		"build": "svelte-kit sync && svelte-package",
 		"prepublishOnly": "echo 'Did you mean to publish `./package/`, instead of `./`?' && exit 1",
