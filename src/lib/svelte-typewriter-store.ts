@@ -5,7 +5,12 @@ type ListenersKeys = "letter:add" | "letter:remove" | "word";
 type Listeners = Map<ListenersKeys, Set<(updated: string) => void>>;
 
 export function typewriter(words: string[] = [], ms: number = 100, interWordsMs: number = 1500) {
-    const { subscribe, set } = writable("");
+    const { subscribe, set } = writable("", () => {
+		return () => {
+			// Runs when the store has no more subscribers
+			direction = 0;
+		};
+	}));
     let currentWord = words[0];
     let currentIndex = 0;
     let currentWordIndex = 0;
@@ -32,7 +37,7 @@ export function typewriter(words: string[] = [], ms: number = 100, interWordsMs:
             currentIndex = 0;
             direction = 1;
         }
-        if (currentWord) {
+        if (currentWord && direction) {
             setTimeout(timeOutFunction, waiting);
         }
     };
