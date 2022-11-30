@@ -5,13 +5,21 @@ type ListenersKeys = "letter:add" | "letter:remove" | "word";
 type Listeners = Map<ListenersKeys, Set<(updated: string) => void>>;
 
 export function typewriter(words: string[] = [], ms: number = 100, interWordsMs: number = 1500) {
-    const { subscribe, set } = writable("");
+    const { subscribe, set } = writable("", () => {
+		return () => {
+			// Runs when the store has no more subscribers
+            clearTimeout(timeoutID);
+		};
+	});
     let currentWord = words[0];
     let currentIndex = 0;
     let currentWordIndex = 0;
     let direction = 1;
     let listeners: Listeners = new Map([["letter:add", new Set()], ["letter:remove", new Set()], ["word", new Set()]]);
+    let timeoutID: NodeJS.Timeout;
+
     const timeOutFunction = () => {
+        clearTimeout(timeoutID);
         set(currentWord.slice(0, currentIndex));
         let waiting = ms;
         if (currentIndex === currentWord.length) {
@@ -33,11 +41,11 @@ export function typewriter(words: string[] = [], ms: number = 100, interWordsMs:
             direction = 1;
         }
         if (currentWord) {
-            setTimeout(timeOutFunction, waiting);
+            timeoutID = setTimeout(timeOutFunction, waiting);
         }
     };
     if (currentWord) {
-        setTimeout(timeOutFunction, ms);
+        timeoutID = setTimeout(timeOutFunction, ms);
     }
     return {
         subscribe,
